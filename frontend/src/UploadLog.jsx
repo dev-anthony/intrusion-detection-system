@@ -1,128 +1,9 @@
-// // frontend/src/UploadLog.jsx
-// import React, { useState } from 'react'
-// import axios from 'axios'
-
-// const UploadLog = () => {
-//   const [file, setFile] = useState(null)
-//   const [results, setResults] = useState(null)
-
-//   const handleFileChange = (e) => {
-//     setFile(e.target.files[0])
-//   }
-
-//   const handleUpload = async () => {
-//     if (!file) return alert("Please choose a file")
-
-//     const formData = new FormData()
-//     formData.append("logFile", file)
-
-//     try {
-//       const response = await axios.post("http://localhost:4000/upload", formData)
-//       setResults(response.data)
-//     } catch (err) {
-//       alert("Upload failed")
-//       console.error(err)
-//     }
-//   }
-
-//   return (
-//     <div>
-//       <input type="file" accept=".log,.txt" onChange={handleFileChange} />
-//       <button onClick={handleUpload}>Upload</button>
-
-//       {results && (
-//         <div style={{ marginTop: '1rem' }}>
-//           <h2>Results:</h2>
-//           <p>Total Lines: {results.totalLines}</p>
-//           <p>Flagged Lines: {results.totalFlagged}</p>
-//           <ul>
-//             {results.results.map((item, idx) => (
-//               <li key={idx}>
-//                 <strong>Line {item.lineNumber}</strong>: {item.text} <em>({item.matchedRule})</em>
-//               </li>
-//             ))}
-//           </ul>
-//         </div>
-//       )}
-//     </div>
-//   )
-// }
-
-// export default UploadLog
-// import React, { useState } from 'react';
-// import axios from 'axios';
-// import ThreatCard from './components/ThreatCard';
-
-// const UploadLog = () => {
-//   const [file, setFile] = useState(null);
-//   const [threats, setThreats] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState('');
-//   const [success, setSuccess] = useState('');
-
-//   const handleFileChange = (e) => {
-//     setFile(e.target.files[0]);
-//     setThreats([]);
-//     setError('');
-//     setSuccess('');
-//   };
-
-//   const handleUpload = async () => {
-//     if (!file) {
-//       setError('Please select a file');
-//       return;
-//     }
-
-//     const formData = new FormData();
-//     formData.append('log', file); // ✅ This MUST match backend multer field name
-
-//     try {
-//       setLoading(true);
-//       setError('');
-//       setSuccess('');
-
-//       const res = await axios.post('http://localhost:5000/api/upload', formData);
-//       setThreats(res.data.threats || []);
-//       setSuccess('Log uploaded and scanned successfully');
-//     } catch (err) {
-//       setError('Failed to upload log');
-//       console.error(err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="upload-page">
-//       <h2>Upload Log File</h2>
-//       <input type="file" onChange={handleFileChange} />
-//       <button onClick={handleUpload} disabled={loading}>
-//         {loading ? 'Scanning...' : 'Upload & Scan'}
-//       </button>
-
-//       {error && <p style={{ color: 'red' }}>{error}</p>}
-//       {success && <p style={{ color: 'green' }}>{success}</p>}
-
-//       <div className="threats-list">
-//         {threats.length > 0 && (
-//           <>
-//             <h3>Detected Threats</h3>
-//             {threats.map((threat, idx) => (
-//               <ThreatCard key={idx} threat={threat} />
-//             ))}
-//           </>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default UploadLog;
 import React, { useState } from 'react';
 import axios from 'axios';
-import ThreatCard from './components/ThreatCard'; // ✅ ADD THIS
+import ThreatCard from './components/ThreatCard';
+import ThreatStats from './components/ThreatStats';
 
-const App = () => {
+const UploadLog = () => {
   const [file, setFile] = useState(null);
   const [threats, setThreats] = useState([]);
   const [error, setError] = useState('');
@@ -131,7 +12,7 @@ const App = () => {
 
   const handleUpload = async () => {
     if (!file) {
-      setError('Please select a file');
+      setError('Please select a log file');
       return;
     }
 
@@ -142,9 +23,9 @@ const App = () => {
       setLoading(true);
       setError('');
       setSuccess('');
+      setThreats([]);
 
       const res = await axios.post('http://localhost:5000/api/upload', formData);
-      console.log('Server Response:', res.data); // ✅ Inspect this
       setThreats(res.data.threats || []);
       setSuccess('Log uploaded and scanned successfully');
     } catch (err) {
@@ -156,40 +37,51 @@ const App = () => {
   };
 
   return (
-    <div className="p-4 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Intrusion Detection System</h1>
+    <div className="min-h-screen bg-gray-100">
+      <div className="max-w-6xl mx-auto px-8 py-6">
+        <h1 className="text-2xl font-bold text-slate-950 mb-4 text-center sm:text-3xl">
+          Intrusion Detection Dashboard
+        </h1>
+        <p className='text-center text-gray-400 font-medium text-[14px] mb-4 sm:text-[16px]'>Upload your log files to be scanned for threats.</p>
 
-      <input
-        type="file"
-        accept=".log"
-        onChange={(e) => setFile(e.target.files[0])}
-        className="mb-4"
-      />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+          <input
+            type="file"
+            accept=".log,.txt"
+            onChange={(e) => setFile(e.target.files[0])}
+            className="block w-full sm:w-auto border border-gray-500 rounded px-4 py-2 text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          />
 
-      <button
-        onClick={handleUpload}
-        disabled={loading}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        {loading ? 'Scanning...' : 'Upload and Scan'}
-      </button>
+          <button
+            onClick={handleUpload}
+            disabled={loading}
+            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? 'Scanning...' : 'Upload & Scan'}
+          </button>
+        </div>
 
-      {error && <p className="text-red-600 mt-2">{error}</p>}
-      {success && <p className="text-green-600 mt-2">{success}</p>}
+        {/* Feedback */}
+        {error && <p className="text-red-600 font-medium mb-4">{error}</p>}
+        {/* {success && <p className="text-green-600 font-medium mb-4">{success}</p>} */}
 
-      <div className="mt-6">
-        {threats.length > 0 ? (
-          threats.map((threat, idx) => <ThreatCard key={idx} threat={threat} />)
-        ) : (
-          success && <p className="text-gray-600">No threats detected.</p>
+        {threats.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+            {/* Left: Threat Cards */}
+            <div className="space-y-4">
+              {threats.map((threat, idx) => (
+                <ThreatCard key={idx} threat={threat} />
+              ))}
+            </div>
+
+            <div>
+              <ThreatStats threats={threats} />
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-export default App;
-
-
-
-
+export default UploadLog;

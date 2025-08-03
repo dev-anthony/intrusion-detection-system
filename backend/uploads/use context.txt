@@ -1,0 +1,13 @@
+| Term                    | Meaning (Layman)                                                           | Why It’s Important                                           |
+| ----------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `Context`               | A **storage container** that holds shared data (like a cart or user info)  | So you don’t pass props manually from component to component |
+| `Provider`              | The **giver** — makes the data available to all children components        | It’s the source of truth for your shared data                |
+| `Consumer / useContext` | The **taker** — uses the data from context                                 | This is how you get the data inside your component           |
+| `useContext`            | A hook that lets you **pull the data** from context                        | So your component can read or change the shared state        |
+| `localStorage`          | Like your browser’s notebook — it **remembers data** even when you refresh | You use it to **save your cart** or login info               |
+| `useState`              | A React hook to store changing values                                      | It keeps track of things like cart, theme, or user           |
+| `useEffect`             | A hook to **run code when something happens** (like when the cart updates) | Here, we use it to **save data to localStorage**             |
+
+
+
+rate limiter

@@ -16,6 +16,12 @@ const UploadLog = () => {
       return;
     }
 
+    const allowedTypes = ['text/plain', 'application/log'];
+    if (!allowedTypes.includes(file.type) && !file.name.endsWith('.log') && !file.name.endsWith('.txt')) {
+      setError('Invalid file format. Please upload a .log or .txt file.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('log', file);
 
@@ -26,13 +32,21 @@ const UploadLog = () => {
       setThreats([]);
 
       const res = await axios.post('http://localhost:5000/api/upload', formData);
-      setThreats(res.data.threats || []);
-      setSuccess('Log uploaded and scanned successfully');
+      const detected = res.data.threats || [];
+
+      setThreats(detected);
+
+      if (detected.length === 0) {
+        setSuccess('Scan complete. No threats found.');
+      } else {
+        setSuccess('');
+      }
     } catch (err) {
       setError('Failed to upload log');
       console.error(err);
     } finally {
       setLoading(false);
+      
     }
   };
 
@@ -42,7 +56,9 @@ const UploadLog = () => {
         <h1 className="text-2xl font-bold text-slate-950 mb-4 text-center sm:text-3xl">
           Intrusion Detection Dashboard
         </h1>
-        <p className='text-center text-gray-400 font-medium text-[14px] mb-4 sm:text-[16px]'>Upload your log files to be scanned for threats.</p>
+        <p className='text-center text-gray-400 font-medium text-[14px] mb-4 sm:text-[16px]'>
+          Upload your log files to be scanned for threats.
+        </p>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
           <input
@@ -61,13 +77,13 @@ const UploadLog = () => {
           </button>
         </div>
 
-        {/* Feedback */}
+        
         {error && <p className="text-red-600 font-medium mb-4">{error}</p>}
-        {/* {success && <p className="text-green-600 font-medium mb-4">{success}</p>} */}
+        {success && <p className="text-green-600 font-medium mb-4">{success}</p>}
 
         {threats.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-            {/* Left: Threat Cards */}
+            
             <div className="space-y-4">
               {threats.map((threat, idx) => (
                 <ThreatCard key={idx} threat={threat} />

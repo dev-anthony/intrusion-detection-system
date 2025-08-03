@@ -1,0 +1,231 @@
+// src/components/UploadLog.jsx
+import React, { useState } from 'react';
+
+function UploadLog() {
+  const [file, setFile] = useState(null);
+
+  const handleChange = (e) => setFile(e.target.files[0]);
+  const handleUpload = async () => {
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('logfile', file);
+    await fetch('/backend/upload.php', { method: 'POST', body: formData });
+    alert('File uploaded!');
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleChange} />
+      <button onClick={handleUpload}>Upload Log</button>
+    </div>
+  );
+}
+
+export default UploadLog;
+
+<?php
+// backend/upload.php
+session_start();
+if (!isset($_SESSION['user_id'])) { http_response_code(401); exit; }
+if ($_FILES['logfile']['error'] === UPLOAD_ERR_OK) {
+    $filename = basename($_FILES['logfile']['name']);
+    $target = "uploads/" . uniqid() . "_" . $filename;
+    move_uploaded_file($_FILES['logfile']['tmp_name'], $target);
+    // Call analysis function here
+    echo json_encode(['status' => 'success', 'file' => $target]);
+} else {
+    http_response_code(400);
+    echo json_encode(['status' => 'error']);
+}
+
+<?php
+// backend/analyze.php
+function detect_intrusions($filepath) {
+    $patterns = [
+        'Brute Force' => '/Failed password for/',
+        'Port Scan' => '/nmap scan report/',
+        // Add more patterns
+    ];
+    $results = [];
+    $lines = file($filepath);
+    foreach ($lines as $line) {
+        foreach ($patterns as $type => $regex) {
+            if (preg_match($regex, $line)) {
+                $results[] = ['type' => $type, 'line' => $line];
+            }
+        }
+    }
+    return $results;
+}
+
+
+// src/components/Dashboard.jsx
+import React, { useEffect, useState } from 'react';
+
+function Dashboard() {
+  const [stats, setStats] = useState({ uploads: 0, threats: 0, safe: 0, types: {} });
+
+  useEffect(() => {
+    fetch('/backend/stats.php').then(res => res.json()).then(setStats);
+  }, []);
+
+  return (
+    <div>
+      <h2>Dashboard</h2>
+      <p>Total uploads: {stats.uploads}</p>
+      <p>Threats detected: {stats.threats}</p>
+      <p>Safe logs: {stats.safe}</p>
+      <ul>
+        {Object.entries(stats.types).map(([type, count]) => (
+          <li key={type}>{type}: {count}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default Dashboard;
+
+
+
+
+<?php
+// backend/geolocate.php
+$ip = $_GET['ip'];
+$geo = file_get_contents("http://ip-api.com/json/$ip");
+echo $geo;
+
+
+// src/components/GeoModal.jsx
+import React, { useEffect, useState } from 'react';
+
+function GeoModal({ ip, onClose }) {
+  const [geo, setGeo] = useState(null);
+
+  useEffect(() => {
+    fetch(`/backend/geolocate.php?ip=${ip}`).then(res => res.json()).then(setGeo);
+  }, [ip]);
+
+  if (!geo) return <div>Loading...</div>;
+  return (
+    <div>
+      <h3>IP: {ip}</h3>
+      <p>Country: {geo.country}</p>
+      <p>City: {geo.city}</p>
+      <p>ISP: {geo.isp}</p>
+      <p>Coordinates: {geo.lat}, {geo.lon}</p>
+      <button onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
+export default GeoModal;
+
+
+<?php
+// backend/login.php
+session_start();
+$user = $_POST['user'];
+$pass = $_POST['pass'];
+// Check user in DB (hash passwords in production)
+if ($user === 'admin' && $pass === 'password') {
+    $_SESSION['user_id'] = 1;
+    echo json_encode(['status' => 'ok']);
+} else {
+    http_response_code(401);
+    echo json_encode(['status' => 'fail']);
+}
+
+
+// src/components/Login.jsx
+import React, { useState } from 'react';
+
+function Login({ onLogin }) {
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+  const handleSubmit = async () => {
+    const res = await fetch('/backend/login.php', {
+      method: 'POST',
+      body: new URLSearchParams({ user, pass }),
+    });
+    if (res.ok) onLogin();
+    else alert('Login failed');
+  };
+  return (
+    <div>
+      <input value={user} onChange={e => setUser(e.target.value)} placeholder="User" />
+      <input type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="Password" />
+      <button onClick={handleSubmit}>Login</button>
+    </div>
+  );
+}
+
+export default Login;
+
+
+<?php
+// backend/history.php
+session_start();
+if (!isset($_SESSION['user_id'])) { http_response_code(401); exit; }
+// Fetch user's uploads from DB or file
+echo json_encode([
+  ['filename' => 'log1.txt', 'date' => '2025-07-21', 'result' => 'Safe', 'path' => 'uploads/log1.txt'],
+  // ...
+]);
+
+
+// src/components/History.jsx
+import React, { useEffect, useState } from 'react';
+
+function History() {
+  const [logs, setLogs] = useState([]);
+  useEffect(() => {
+    fetch('/backend/history.php').then(res => res.json()).then(setLogs);
+  }, []);
+  return (
+    <table>
+      <thead>
+        <tr><th>Filename</th><th>Date</th><th>Result</th><th>Download</th></tr>
+      </thead>
+      <tbody>
+        {logs.map(log => (
+          <tr key={log.filename}>
+            <td>{log.filename}</td>
+            <td>{log.date}</td>
+            <td>{log.result}</td>
+            <td><a href={log.path} download>Download</a></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+export default History;
+
+
+
+
+// src/components/AlertBell.jsx
+import React, { useState, useEffect } from 'react';
+
+function AlertBell() {
+  const [alerts, setAlerts] = useState([]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch('/backend/alerts.php').then(res => res.json()).then(setAlerts);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div>
+      <span role="img" aria-label="bell">🔔</span>
+      {alerts.length > 0 && <span>{alerts.length}</span>}
+      <ul>
+        {alerts.map((a, i) => <li key={i}>{a.message}</li>)}
+      </ul>
+    </div>
+  );
+}
+
+export default AlertBell;

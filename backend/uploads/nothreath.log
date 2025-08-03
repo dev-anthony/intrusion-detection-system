@@ -8,6 +8,3 @@
 [2025-08-01 08:06:15] INFO: HTTP request from 192.168.1.20 - status 200 OK
 [2025-08-01 08:06:45] INFO: User logout - user: admin
 [2025-08-01 08:07:00] INFO: Idle timeout reached - session closed.
-2024-06-01 12:00:01 Unauthorized access attempt detected from 192.168.1.5
-2024-06-01 12:00:03 Failed login detected for user 'admin'
-2024-06-01 12:00:10 Port scan detected on 192.168.1.8

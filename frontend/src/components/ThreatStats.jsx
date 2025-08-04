@@ -117,9 +117,9 @@ const ThreatStats = ({ threats }) => {
   });
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-xl w-full h-full border border-slate-200">
-      <h3 className="text-2xl font-semibold text-slate-800 mb-6">
-        Threats Detected Over Time
+    <div className="bg-white rounded-2xl p-4 shadow-xl w-full h-full border border-slate-200">
+      <h3 className="text-2xl font-semibold text-slate-950 mb-4">
+        Threats Stats
       </h3>
       <ResponsiveContainer width="100%" height={300}>
         <ComposedChart

@@ -4,9 +4,7 @@ import UploadLog from './UploadLog'
 
 const App = () => {
   return (
-    <div>
       <UploadLog />
-    </div>
   )
 }
 

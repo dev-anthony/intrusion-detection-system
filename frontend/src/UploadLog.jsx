@@ -51,7 +51,7 @@ const UploadLog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen w-full">
       <div className="max-w-6xl mx-auto px-8 py-6">
         <h1 className="text-2xl font-bold text-slate-950 mb-4 text-center sm:text-3xl">
           Intrusion Detection Dashboard
@@ -60,7 +60,7 @@ const UploadLog = () => {
           Upload your log files to be scanned for threats.
         </p>
 
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
           <input
             type="file"
             accept=".log,.txt"
@@ -82,18 +82,22 @@ const UploadLog = () => {
         {success && <p className="text-green-600 font-medium mb-4">{success}</p>}
 
         {threats.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+            <div>
+
+          <div className="grid grid-cols-1 gap-6 mt-8">
+             <div>
+              <ThreatStats threats={threats} />
+            </div>
             
-            <div className="space-y-4">
+            <div className="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
               {threats.map((threat, idx) => (
                 <ThreatCard key={idx} threat={threat} />
               ))}
             </div>
 
-            <div>
-              <ThreatStats threats={threats} />
-            </div>
+           
           </div>
+        </div>
         )}
       </div>
     </div>

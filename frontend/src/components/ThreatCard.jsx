@@ -59,9 +59,9 @@ const ThreatCard = ({ threat }) => {
   const severityClass = severityColors[threat.severity] || "bg-gray-100 text-gray-700 border-gray-300";
 
   return (
-    <div className="bg-white p-4 rounded-2xl shadow-2xl w-full h-full">
+    <div className="bg-white p-4 rounded-2xl shadow-2xl w-full ">
        <h2 className="text-xl font-bold mb-4">Detected Threats</h2>
-    <div className={`p-4 rounded-xl shadow-sm border ${severityClass} flex items-start gap-4 h-[80%]`}>
+    <div className={`p-4 rounded-xl shadow-sm border ${severityClass} flex items-start gap-4`}>
       <div className="mt-1">
         <ShieldExclamationIcon className="h-8 w-8 text-red-500"  />
       </div>

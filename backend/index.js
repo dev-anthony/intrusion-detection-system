@@ -11,7 +11,7 @@
 
 // const upload = multer({ dest: "uploads/" });
 
-// app.post("/upload", upload.single("logFile"), (req, res) => {
+// app.post("/upload", upload.single("log"), (req, res) => {
 //   const filePath = req.file.path;
 //   const flaggedLines = [];
 
@@ -36,7 +36,7 @@
 //   });
 // });
 
-// const PORT = 4000;
+// const PORT = 5000;
 // app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
 // import express from 'express';
 // import cors from 'cors';
@@ -82,11 +82,72 @@
 // });
 
 // app.listen(port, () => console.log(`Server running on port ${port}`));
+// import express from 'express';
+// import multer from 'multer';
+// import cors from 'cors';
+// import fs from 'fs';
+// import path from 'path';
+
+// const app = express();
+// const PORT = 5000;
+
+// app.use(cors());
+// app.use(express.json());
+
+// // File upload config
+// const upload = multer({ dest: 'uploads/' });
+
+// app.post('/api/upload', upload.single('log'), (req, res) => {
+//   const logPath = req.file.path;
+
+//   fs.readFile(logPath, 'utf-8', (err, data) => {
+//     if (err) {
+//       return res.status(500).json({ message: 'Failed to read log file' });
+//     }
+
+//     // Very simple pattern-based detection
+//     const patterns = [
+//       { keyword: 'Failed login', type: 'Brute-force Attempt' },
+//       { keyword: 'DROP TABLE', type: 'SQL Injection - Drop Table' },
+//       { keyword: 'SELECT * FROM', type: 'SQL Injection - Data Fetch' },
+//       { keyword: 'nmap', type: 'Port Scanning Detected' },
+//       { keyword: 'sqlmap', type: 'SQL Injection Tool Detected' }
+//     ];
+
+//     const results = [];
+
+//     data.split('\n').forEach((line, index) => {
+//       patterns.forEach((pattern) => {
+//         if (line.includes(pattern.keyword)) {
+//           results.push({
+//             line: index + 1,
+//             content: line.trim(),
+//             issue: pattern.type
+//           });
+//         }
+//       });
+//     });
+
+//     // Clean up file after scan
+//     fs.unlink(logPath, () => {});
+
+//     res.json({
+//       message: 'Log uploaded and scanned successfully',
+//       alerts: results.length ? results : 'No suspicious activity found.'
+//     });
+//   });
+// });
+
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
+// backend/index.js
 import express from 'express';
 import multer from 'multer';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import rules from './rules.js'; // adjusted import if using ES Modules
 
 const app = express();
 const PORT = 5000;
@@ -94,47 +155,33 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-// File upload config
 const upload = multer({ dest: 'uploads/' });
 
 app.post('/api/upload', upload.single('log'), (req, res) => {
   const logPath = req.file.path;
 
   fs.readFile(logPath, 'utf-8', (err, data) => {
-    if (err) {
-      return res.status(500).json({ message: 'Failed to read log file' });
-    }
-
-    // Very simple pattern-based detection
-    const patterns = [
-      { keyword: 'Failed login', type: 'Brute-force Attempt' },
-      { keyword: 'DROP TABLE', type: 'SQL Injection - Drop Table' },
-      { keyword: 'SELECT * FROM', type: 'SQL Injection - Data Fetch' },
-      { keyword: 'nmap', type: 'Port Scanning Detected' },
-      { keyword: 'sqlmap', type: 'SQL Injection Tool Detected' }
-    ];
+    if (err) return res.status(500).json({ message: 'Failed to read log file' });
 
     const results = [];
+    const lines = data.split('\n');
 
-    data.split('\n').forEach((line, index) => {
-      patterns.forEach((pattern) => {
-        if (line.includes(pattern.keyword)) {
+    lines.forEach((line, index) => {
+      rules.forEach(({ pattern, type }) => {
+        if (pattern.test(line)) {
           results.push({
             line: index + 1,
-            content: line.trim(),
-            issue: pattern.type
+            type,
+            description: line.trim(),
+            time: new Date().toLocaleTimeString(),
+            severity: type.toLowerCase().includes('sql') || type.includes('Code') ? 'High' : 'Medium',
           });
         }
       });
     });
 
-    // Clean up file after scan
-    fs.unlink(logPath, () => {});
-
-    res.json({
-      message: 'Log uploaded and scanned successfully',
-      alerts: results.length ? results : 'No suspicious activity found.'
-    });
+    fs.unlink(logPath, () => {}); // Cleanup
+    res.json({ threats: results });
   });
 });
 

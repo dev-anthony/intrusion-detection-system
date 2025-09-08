@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import ThreatCard from './components/ThreatCard';
 import ThreatStats from './components/ThreatStats';
+import Logout from './Logout';
 
 const UploadLog = () => {
   const [file, setFile] = useState(null);
@@ -100,6 +101,7 @@ const UploadLog = () => {
         </div>
         )}
       </div>
+      <Logout></Logout>
     </div>
   );
 };

@@ -54,7 +54,7 @@ import { fileURLToPath } from 'url';
 import rules from './rules.js';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+// const PORT = process.env.PORT || 5000;
 
 // Helpers for dirname with ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -104,6 +104,7 @@ app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
 });
 
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

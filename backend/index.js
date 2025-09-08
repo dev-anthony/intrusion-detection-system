@@ -97,7 +97,7 @@ app.post('/api/upload', upload.single('log'), (req, res) => {
 });
 
 // ✅ Serve React frontend
-app.use(express.static(path.join(__dirname, 'frontend/dist')));
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 // Catch-all for React Router
 app.get(/.*/, (req, res) => {

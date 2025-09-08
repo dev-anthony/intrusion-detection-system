@@ -1,6 +1,6 @@
 // frontend/src/App.jsx
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Register from "./Register";
 import Login from "./Login";
 import UploadLog from './UploadLog'

@@ -32,7 +32,7 @@ const UploadLog = () => {
       setSuccess('');
       setThreats([]);
 
-      const res = await axios.post('https://intrusion-detection-system-7.onrender.com/api/upload', formData);
+      const res = await axios.post('https://intrusion-detection-system-8.onrender.com/api/upload', formData);
       const detected = res.data.threats || [];
 
       setThreats(detected);

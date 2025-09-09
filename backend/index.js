@@ -54,9 +54,8 @@ import { fileURLToPath } from 'url';
 import rules from './rules.js';
 
 const app = express();
-// const PORT = process.env.PORT || 5000;
 
-// Helpers for dirname with ES Modules
+// ES Modules dirname helper
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -91,7 +90,7 @@ app.post('/api/upload', upload.single('log'), (req, res) => {
       });
     });
 
-    fs.unlink(logPath, () => {}); // cleanup
+    fs.unlink(logPath, () => {}); // cleanup after reading
     res.json({ threats: results });
   });
 });
@@ -99,9 +98,9 @@ app.post('/api/upload', upload.single('log'), (req, res) => {
 // ✅ Serve React frontend
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-// Catch-all for React Router
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+// ✅ Fix: Correct path to index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 const PORT = process.env.PORT || 5000;

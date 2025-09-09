@@ -50,6 +50,7 @@ import multer from 'multer';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import { join } from 'path';
 import { fileURLToPath } from 'url';
 import rules from './rules.js';
 
@@ -99,8 +100,11 @@ app.post('/api/upload', upload.single('log'), (req, res) => {
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 // ✅ Fix: Correct path to index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+// });
+app.get('/*', (req, res) => {
+  res.sendFile(join(__dirname, '../frontend/dist/index.html'));
 });
 
 const PORT = process.env.PORT || 5000;

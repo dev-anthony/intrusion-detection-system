@@ -1,18 +1,19 @@
 // frontend/src/App.jsx
-
-import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./Register";
 import Login from "./Login";
-import UploadLog from './UploadLog'
+import UploadLog from "./UploadLog";
+import Home from "./Home";
 
 export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+        {/* Show the actual Home component at "/" */}
+        <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/home" element={<UploadLog/>} />
+        <Route path="/home" element={<UploadLog />} />
       </Routes>
     </Router>
   );
